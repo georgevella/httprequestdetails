@@ -11,4 +11,7 @@ An ASP.NET Core API that dumps all http headers and connection info related to a
           "Password": ""
         }
       },
+      "HttpsDefaultCert": {
+        "Url": "https://localhost:8443"
+      }
 ```
