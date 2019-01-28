@@ -5,17 +5,31 @@ using System.Linq;
 using System.Net;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Server.Kestrel.Https;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 namespace RequestDetailsViewer
 {
-    public class Program
+    public static class Program
     {
         public static void Main(string[] args)
         {
             var host = WebHost.CreateDefaultBuilder()
-                .ConfigureLogging(builder => builder.AddConsole())
-                .UseKestrel()
+                .UseKestrel(
+                    (context, options) =>
+                    {
+                        options.ConfigureHttpsDefaults(adapterOptions =>
+                            {
+                                adapterOptions.ClientCertificateMode = ClientCertificateMode.AllowCertificate;
+                            }                           
+                        );
+                        
+                        options.ConfigureEndpointDefaults(listenOptions =>
+                        {
+                            
+                        });
+                    })
                 .UseStartup<Startup>()
                 .Build();
 

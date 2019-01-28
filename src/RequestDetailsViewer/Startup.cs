@@ -40,24 +40,30 @@ namespace RequestDetailsViewer
 
 				var requestInfo = new
 				{
-					context.TraceIdentifier,
-					RemoteConnectionInfo = new
-					{
-						Ip = context.Connection.RemoteIpAddress.ToString(),
-						Port = context.Connection.RemotePort
+					Request = new {
+						context.Request.Scheme,
+						context.Request.Method,
+						Path = context.Request.Path.HasValue ? context.Request.Path.Value : "",
+						QueryString = context.Request.QueryString.HasValue ? context.Request.QueryString.Value : "",
+						context.Request.Host,
+						context.Request.Protocol,
 					},
-					Headers = context.Request.Headers.ToDictionary(x => x.Key, x => x.Value.ToString()),
+					Connection = new {
+						Remote = new
+						{
+							Ip = context.Connection.RemoteIpAddress.ToString(),
+							Port = context.Connection.RemotePort
+						},
+						ClientCertificate = context.Connection.ClientCertificate?.ToString(true )
+					},
+					Headers = context.Request.Headers.ToDictionary( x => x.Key, x => x.Value.ToString() ),
+					Cookies = context.Request.Cookies.ToDictionary( x => x.Key, x => x.Value.ToString() ),
 					Content = new {
 						HasContent = context.Request.ContentLength != null, 
 						context.Request.ContentLength,
 						context.Request.ContentType,
 					},
-					context.Request.Method,
-					Path = context.Request.Path.HasValue ? context.Request.Path.Value : "",
-					QueryString = context.Request.QueryString.HasValue ? context.Request.QueryString.Value : "",
-					context.Request.Host,
-					context.Request.Protocol,
-					context.Request.Scheme,
+					context.TraceIdentifier,
 				};
 
 				using (var streamWriter = new StreamWriter(context.Response.Body))
