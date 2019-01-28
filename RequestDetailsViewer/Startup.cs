@@ -6,11 +6,20 @@ using Newtonsoft.Json;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
+using Microsoft.Extensions.Options;
 
 namespace RequestDetailsViewer
 {
 	public class Startup
 	{
+		private readonly IOptions<KestrelServerOptions> _kesterServerOptions;
+
+		public Startup(IOptions<KestrelServerOptions> kesterServerOptions)
+		{
+			_kesterServerOptions = kesterServerOptions;
+		}
+		
 		// This method gets called by the runtime. Use this method to add services to the container.
 		// For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
 		public void ConfigureServices(IServiceCollection services)
@@ -18,10 +27,8 @@ namespace RequestDetailsViewer
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-		public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+		public void Configure(IApplicationBuilder app, IHostingEnvironment env)
 		{
-			loggerFactory.AddConsole();
-
 			if (env.IsDevelopment())
 			{
 				app.UseDeveloperExceptionPage();
@@ -40,8 +47,11 @@ namespace RequestDetailsViewer
 						Port = context.Connection.RemotePort
 					},
 					Headers = context.Request.Headers.ToDictionary(x => x.Key, x => x.Value.ToString()),
-					context.Request.ContentLength,
-					context.Request.ContentType,
+					Content = new {
+						HasContent = context.Request.ContentLength != null, 
+						context.Request.ContentLength,
+						context.Request.ContentType,
+					},
 					context.Request.Method,
 					Path = context.Request.Path.HasValue ? context.Request.Path.Value : "",
 					QueryString = context.Request.QueryString.HasValue ? context.Request.QueryString.Value : "",

@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
+using System.Net;
+using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace RequestDetailsViewer
 {
@@ -11,10 +13,9 @@ namespace RequestDetailsViewer
     {
         public static void Main(string[] args)
         {
-            var host = new WebHostBuilder()
+            var host = WebHost.CreateDefaultBuilder()
+                .ConfigureLogging(builder => builder.AddConsole())
                 .UseKestrel()
-                .UseContentRoot(Directory.GetCurrentDirectory())
-                .UseIISIntegration()
                 .UseStartup<Startup>()
                 .Build();
 
